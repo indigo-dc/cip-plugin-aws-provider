@@ -35,7 +35,7 @@ setup(
 
     entry_points={
         'cip.providers': [
-            'aws = cip_plugin_aws_provider.aws:AwsProvider2',
+            'aws = cip_plugin_aws_provider.aws:AwsProvider',
         ],
     },
 
