@@ -159,6 +159,45 @@ class AwsProvider(providers.BaseProvider):
 
         return images
 
+    def get_templates(self, **kwargs):
+        flavors = {}
+        defaults = {
+            'template_platform': 'amd64',
+            'template_network': 'private',
+            'template_memory': 0,
+            'template_ephemeral': 0,
+            'template_disk': 0,
+            'template_cpu': 0,
+            'template_infiniband': False,
+            'template_flavor_gpu_number': 0,
+            'template_flavor_gpu_vendor': None,
+            'template_flavor_gpu_model': None,
+        }
+        defaults.update(self.static.get_template_defaults(prefix=True))
+
+        _filters = [
+            {"Name": "bare-metal", "Values": ["false"]},
+            {"Name": "ebs-info.ebs-optimized-support", "Values": ["supported"]},
+            {"Name": "current-generation", "Values": ["true"]},
+        ]
+
+        for flavor in self.aws_client.describe_instance_types()['InstanceTypes']:
+            flavor_id = flavor.get('InstanceType')
+            aux = defaults.copy()
+            vcpu_info = flavor.get('VCpuInfo')
+            mem_info = flavor.get('MemoryInfo')
+            storage_info = flavor.get('InstanceStorageInfo')
+            if None in (vcpu_info, mem_info, storage_info):
+                continue
+            aux.update({'flavor_id': flavor_id,
+                        'flavor_name': flavor_id,
+                        'tenant_id': flavor_id,
+                        'template_memory': mem_info.get('SizeInMiB'),
+                        'template_disk': storage_info.get('TotalSizeInGB'),
+                        'template_cpu': vcpu_info.get('DefaultVCpus')})
+            flavors[flavor_id] = aux
+        return flavors
+
     def get_compute_endpoints(self, **kwargs):
         endp = [
             region['Endpoint']
