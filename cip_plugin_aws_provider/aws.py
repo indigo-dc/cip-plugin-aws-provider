@@ -147,7 +147,7 @@ class AwsProvider(providers.BaseProvider):
 
                 _image_os_version = self._get_distro_version(image.get('Name'), _distro)
                 aux_img.update({
-                    'image_id': image.get('ImageId'),
+                    'id': image.get('ImageId'),
                     'image_name': image.get('Name'),
                     'image_architecture': image.get('Architecture'),
                     'image_os_type': image.get('PlatformDetails'),
