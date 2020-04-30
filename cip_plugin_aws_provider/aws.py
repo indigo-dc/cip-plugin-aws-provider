@@ -160,7 +160,10 @@ class AwsProvider(providers.BaseProvider):
         return images
 
     def get_compute_endpoints(self, **kwargs):
-        endp = [region['Endpoint'] for region in self.aws_client.describe_regions()['Regions'] if region['RegionName'] == self.aws_region_code][0]
+        endp = [
+            region['Endpoint']
+            for region in self.aws_client.describe_regions()['Regions']
+            if region['RegionName'] == self.aws_region_code][0]
         return {'compute_service_name': endp}
         #ret = {
         #    'endpoints': {
