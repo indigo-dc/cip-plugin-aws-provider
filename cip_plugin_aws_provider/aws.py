@@ -164,8 +164,8 @@ class AwsProvider(providers.BaseProvider):
         return shares
 
     def get_compute_endpoints(self, **kwargs):
-		images = self.get_images()
-		return {}
+        endp = [region['Endpoint'] for region in self.aws_client.describe_regions()['Regions'] if region['RegionName'] == self.aws_region_code][0]
+        return {'compute_service_name': endp}
         #ret = {
         #    'endpoints': {
         #        self.framework_url: {}},
