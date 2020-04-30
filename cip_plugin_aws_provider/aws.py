@@ -32,6 +32,12 @@ class AwsProvider(providers.BaseProvider):
         self.aws_region_code = opts.aws_region_code
         self.aws_access_key = opts.aws_access_key
         self.aws_secret_key = opts.aws_secret_key
+        self.aws_client = boto3.client('ec2',
+                              region_name=self.aws_region_code,
+                              aws_access_key_id=self.aws_access_key,
+                              aws_secret_access_key=self.aws_secret_key)
+
+        self.goc_service_type = 'com.amazonaws.ec2'
 
         self.static = providers.static.StaticProvider(opts)
 
@@ -108,10 +114,6 @@ class AwsProvider(providers.BaseProvider):
             'os_distro': None,
         }
         defaults = self.static.get_image_defaults(prefix=True)
-        client = boto3.client('ec2',
-                              region_name=self.aws_region_code,
-                              aws_access_key_id=self.aws_access_key,
-                              aws_secret_access_key=self.aws_secret_key)
 
         # FIXME(orviz) Use filters from file
         _filters = {
@@ -135,7 +137,7 @@ class AwsProvider(providers.BaseProvider):
 		}
 
         for _distro, _filter in _filters.items():
-            image_data = client.describe_images(ExecutableUsers=['all'],Filters=_filter)
+            image_data = self.aws_client.describe_images(ExecutableUsers=['all'],Filters=_filter)
             for image in image_data['Images']:
                 img_id = image.get('ImageId')
 
