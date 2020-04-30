@@ -1,5 +1,4 @@
 import copy
-import json
 import logging
 import re
 
@@ -32,10 +31,11 @@ class AwsProvider(providers.BaseProvider):
         self.aws_region_code = opts.aws_region_code
         self.aws_access_key = opts.aws_access_key
         self.aws_secret_key = opts.aws_secret_key
-        self.aws_client = boto3.client('ec2',
-                              region_name=self.aws_region_code,
-                              aws_access_key_id=self.aws_access_key,
-                              aws_secret_access_key=self.aws_secret_key)
+        self.aws_client = boto3.client(
+            'ec2',
+            region_name=self.aws_region_code,
+            aws_access_key_id=self.aws_access_key,
+            aws_secret_access_key=self.aws_secret_key)
 
         self.goc_service_type = 'com.amazonaws.ec2'
 
@@ -117,27 +117,35 @@ class AwsProvider(providers.BaseProvider):
 
         # FIXME(orviz) Use filters from file
         _filters = {
-            #"ubuntu":[
-            #    {"Name": "architecture", "Values": ["x86_64"]},
-            #    {"Name": "state", "Values": ["available"]},
-            #    {"Name": "root-device-type", "Values": ["ebs"]},
-            #    {"Name": "is-public", "Values": ["true"]},
-            #    {"Name": "name", "Values": ["ubuntu/images/*%s*"]},
-            #    #{'Name': 'name', 'Values': ['ubuntu/images/*2020*']},
-            #    {"Name": "owner-id", "Values": ["099720109477"]}
-            #],
+            # "ubuntu":[
+            #     {"Name": "architecture", "Values": ["x86_64"]},
+            #     {"Name": "state", "Values": ["available"]},
+            #     {"Name": "root-device-type", "Values": ["ebs"]},
+            #     {"Name": "is-public", "Values": ["true"]},
+            #     {"Name": "name", "Values": ["ubuntu/images/*%s*"]},
+            #     #{'Name': 'name', 'Values': ['ubuntu/images/*2020*']},
+            #     {"Name": "owner-id", "Values": ["099720109477"]}
+            # ],
             "centos": [
-                {"Name": "architecture", "Values": ["x86_64"]},
-                {"Name": "state", "Values": ["available"]},
-                {"Name": "root-device-type", "Values": ["ebs"]},
-                {"Name": "is-public", "Values": ["true"]},
-                {"Name": "product-code", "Values": ["aw0evgkw8e5c1q413zgy5pjce"]},
-                {"Name": "owner-id", "Values": ["679593333241"]}
+                {"Name": "architecture",
+                    "Values": ["x86_64"]},
+                {"Name": "state",
+                    "Values": ["available"]},
+                {"Name": "root-device-type",
+                    "Values": ["ebs"]},
+                {"Name": "is-public",
+                    "Values": ["true"]},
+                {"Name": "product-code",
+                    "Values": ["aw0evgkw8e5c1q413zgy5pjce"]},
+                {"Name": "owner-id",
+                    "Values": ["679593333241"]}
             ]
-		}
+        }
 
         for _distro, _filter in _filters.items():
-            image_data = self.aws_client.describe_images(ExecutableUsers=['all'],Filters=_filter)
+            image_data = self.aws_client.describe_images(
+                ExecutableUsers=['all'],
+                Filters=_filter)
             for image in image_data['Images']:
                 img_id = image.get('ImageId')
 
@@ -145,7 +153,9 @@ class AwsProvider(providers.BaseProvider):
                 aux_img.update(defaults)
                 aux_img.update(image)
 
-                _image_os_version = self._get_distro_version(image.get('Name'), _distro)
+                _image_os_version = self._get_distro_version(
+                    image.get('Name'),
+                    _distro)
                 aux_img.update({
                     'id': image.get('ImageId'),
                     'image_name': image.get('Name'),
@@ -176,12 +186,16 @@ class AwsProvider(providers.BaseProvider):
         defaults.update(self.static.get_template_defaults(prefix=True))
 
         _filters = [
-            {"Name": "bare-metal", "Values": ["false"]},
-            {"Name": "ebs-info.ebs-optimized-support", "Values": ["supported"]},
-            {"Name": "current-generation", "Values": ["true"]},
+            {"Name": "bare-metal",
+                "Values": ["false"]},
+            {"Name": "ebs-info.ebs-optimized-support",
+                "Values": ["supported"]},
+            {"Name": "current-generation",
+                "Values": ["true"]},
         ]
 
-        for flavor in self.aws_client.describe_instance_types()['InstanceTypes']:
+        _flavors = self.aws_client.describe_instance_types(Filters=_filters)
+        for flavor in _flavors['InstanceTypes']:
             flavor_id = flavor.get('InstanceType')
             aux = defaults.copy()
             vcpu_info = flavor.get('VCpuInfo')
@@ -210,18 +224,18 @@ class AwsProvider(providers.BaseProvider):
         parser.add_argument(
             '--aws-region',
             default=utils.env('AWS_DEFAULT_REGION'),
-            dest = 'aws_region_code',
+            dest='aws_region_code',
             help=('Specify AWS Region Code '
                   '(i. e, us-east-2, ap-south-1, eu-west-3...))'))
         parser.add_argument(
             '--aws-access-key',
             default=utils.env('AWS_ACCESS_KEY_ID'),
-            dest = 'aws_access_key',
+            dest='aws_access_key',
             help=('Specify AWS Access Key ID'))
 
         parser.add_argument(
             '--aws-secret-key',
             default=utils.env('AWS_SECRET_ACCESS_KEY'),
-            dest = 'aws_secret_key',
+            dest='aws_secret_key',
             help=('Specify AWS Secret Access Key for'
                   ' the provided AWS Access Key ID'))
