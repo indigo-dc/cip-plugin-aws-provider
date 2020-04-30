@@ -165,43 +165,6 @@ class AwsProvider(providers.BaseProvider):
             for region in self.aws_client.describe_regions()['Regions']
             if region['RegionName'] == self.aws_region_code][0]
         return {'compute_service_name': endp}
-        #ret = {
-        #    'endpoints': {
-        #        self.framework_url: {}},
-        #}
-        ## just gather the relevant variables
-        #global_f = ('service_parent_id',
-        #            'total_cores', 'total_ram', 'total_accelerators',
-        #            'local_volumes_host_base_path',
-        #            'persistent_storage_drivers',
-        #            'load_balancer_ips',
-        #            'accelerators')
-        #endp_f = global_f
-
-        #defaults = self.static.get_compute_endpoint_defaults(prefix=True)
-        #ret['compute_service_name'] = self.framework_url
-        #ret.update(defaults)
-
-        #defaults_endpoint = self.static.get_compute_endpoints(
-        #    global_f=global_f, endp_f=endp_f)
-        #endp_data = defaults_endpoint.pop('endpoints')
-        #if self.framework_url in endp_data.keys():
-        #    framework_data = endp_data[self.framework_url]
-        #    defaults_endpoint.update(utils.get_defined_values(framework_data))
-        #ret.update(utils.get_defined_values(defaults_endpoint))
-
-        #d = ret.copy()
-        ## add external endpoint URL
-        #d['framework_url'] = self.framework_url
-        #for api_endp in self.api_endpoints:
-        #    api_url = '/'.join([self.framework_url, api_endp])
-        #    r = requests.get(api_url, headers=self.headers, verify=self.cacert)
-        #    if r.status_code == requests.codes.ok:
-        #        d.update(r.json())
-        #    else:
-        #        msg = 'Request failed: %s' % r.content
-        #        raise exceptions.MesosProviderException(msg)
-        #ret['endpoints'][self.framework_url] = d
 
     @staticmethod
     def populate_parser(parser):
