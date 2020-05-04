@@ -1,6 +1,7 @@
 # Amazon Web Services (AWS) EC2 plugin for the cloud-info-provider
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Jenkins](https://jenkins.indigo-datacloud.eu/job/Pipeline-as-code/job/CIP%20plugins/job/cip-plugin-aws-provider/job/master/badge/icon?style=flat)](https://jenkins.indigo-datacloud.eu/job/Pipeline-as-code/job/CIP%20plugins/job/cip-plugin-aws-provider/job/master/)
 
 * [Description](#description)
 * [Installation](#installation)
