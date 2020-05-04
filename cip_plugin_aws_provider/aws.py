@@ -75,10 +75,14 @@ class AwsProvider(providers.BaseProvider):
 
     def _get_distro_version(self, image_name, distro):
         os_regexp = {
-            'centos': 'CentOS Linux ([0-9]+) .+'
+            'centos': 'CentOS Linux ([0-9]) .+',
+            'ubuntu': 'ubuntu/images/[\w-].+/ubuntu-\w+-([0-9]{2}\.[0-9]{2})'
         }
         try:
             version = re.search(os_regexp[distro], image_name).groups()[0]
+        except KeyError:
+            msg = "Distribution '%s' not supported." % distro
+            raise exceptions.AwsProviderException(msg)
         except IndexError:
             version = None
         return version
@@ -132,15 +136,14 @@ class AwsProvider(providers.BaseProvider):
 
         # FIXME(orviz) Use filters from file
         _filters = {
-            # "ubuntu":[
-            #     {"Name": "architecture", "Values": ["x86_64"]},
-            #     {"Name": "state", "Values": ["available"]},
-            #     {"Name": "root-device-type", "Values": ["ebs"]},
-            #     {"Name": "is-public", "Values": ["true"]},
-            #     {"Name": "name", "Values": ["ubuntu/images/*%s*"]},
-            #     #{'Name': 'name', 'Values': ['ubuntu/images/*2020*']},
-            #     {"Name": "owner-id", "Values": ["099720109477"]}
-            # ],
+            "ubuntu": [
+                {"Name": "architecture", "Values": ["x86_64"]},
+                {"Name": "state", "Values": ["available"]},
+                {"Name": "root-device-type", "Values": ["ebs"]},
+                {"Name": "is-public", "Values": ["true"]},
+                {"Name": "name", "Values": ["ubuntu/images/*"]},
+                {"Name": "owner-id", "Values": ["099720109477"]}
+            ],
             "centos": [
                 {"Name": "architecture",
                     "Values": ["x86_64"]},
