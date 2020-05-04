@@ -60,6 +60,7 @@ class AwsProvider(providers.BaseProvider):
             # image_os_type
             'Linux/UNIX': 'linux',
             'Windows': 'windows',
+            "Windows with SQL Server Standard": 'windows',
             # image_architecture
             'i386': 'i686'
         }
