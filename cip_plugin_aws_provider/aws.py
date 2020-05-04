@@ -1,4 +1,6 @@
 import copy
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 import logging
 import re
 
@@ -38,7 +40,7 @@ class AwsProvider(providers.BaseProvider):
             aws_secret_access_key=self.aws_secret_key)
 
         self.goc_service_type = 'com.amazonaws.ec2'
-
+        self.all_amis_from = opts.all_amis_from
         self.static = providers.static.StaticProvider(opts)
 
     def setup_logging(self):
@@ -80,6 +82,19 @@ class AwsProvider(providers.BaseProvider):
         except IndexError:
             version = None
         return version
+
+    def _filter_amis_by_creation_date(self, amis):
+        l = []
+        all_amis_from_datetime = datetime.strptime(
+            self.all_amis_from,
+            '%Y-%m-%d')
+        for ami in amis:
+            creation_datetime = datetime.strptime(
+                ami['CreationDate'],
+                '%Y-%m-%dT%H:%M:%S.%fZ')
+            if creation_datetime > all_amis_from_datetime:
+                l.append(ami)
+        return l
 
     def get_images(self, **kwargs):
         images = {}
@@ -141,12 +156,13 @@ class AwsProvider(providers.BaseProvider):
                     "Values": ["679593333241"]}
             ]
         }
-
         for _distro, _filter in _filters.items():
             image_data = self.aws_client.describe_images(
                 ExecutableUsers=['all'],
                 Filters=_filter)
-            for image in image_data['Images']:
+            _images = self._filter_amis_by_creation_date(
+                image_data['Images'])
+            for image in _images:
                 img_id = image.get('ImageId')
 
                 aux_img = copy.deepcopy(template)
@@ -232,10 +248,19 @@ class AwsProvider(providers.BaseProvider):
             default=utils.env('AWS_ACCESS_KEY_ID'),
             dest='aws_access_key',
             help=('Specify AWS Access Key ID'))
-
         parser.add_argument(
             '--aws-secret-key',
             default=utils.env('AWS_SECRET_ACCESS_KEY'),
             dest='aws_secret_key',
             help=('Specify AWS Secret Access Key for'
                   ' the provided AWS Access Key ID'))
+        parser.add_argument(
+            '--all-amis-from',
+            metavar='DATE',
+            default=(datetime.now()
+                     - relativedelta(years=1)).strftime("%Y-%m-%d"),
+            dest='all_amis_from',
+            help=('Starting date from which the creation date'
+                  ' of the AMIs are valid. Date format is '
+                  ' YYYY-MM-DD, and the default is one year'
+                  ' back from the current date.'))
