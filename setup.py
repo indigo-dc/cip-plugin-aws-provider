@@ -6,6 +6,7 @@ def get_requirements():
     with open('requirements.txt') as fp:
         return fp.read()
 
+
 setup(
     name='cip_plugin_aws_provider',
     version='1.0',
