@@ -1,1 +1,2 @@
+# cloud-info-provider>0.11.0
 boto3
