@@ -4,9 +4,9 @@ from dateutil.relativedelta import relativedelta
 import logging
 import re
 
+from cip_plugin_aws_provider import exceptions
 from cloud_info_provider import providers
 from cloud_info_provider import utils
-from cip_plugin_aws_provider import exceptions
 
 try:
     import boto3
