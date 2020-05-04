@@ -4,9 +4,9 @@ from dateutil.relativedelta import relativedelta
 import logging
 import re
 
-from cloud_info_provider import exceptions
 from cloud_info_provider import providers
 from cloud_info_provider import utils
+from cip_plugin_aws_provider import exceptions
 
 try:
     import boto3
@@ -76,7 +76,8 @@ class AwsProvider(providers.BaseProvider):
     def _get_distro_version(self, image_name, distro):
         os_regexp = {
             'centos': 'CentOS Linux ([0-9]) .+',
-            'ubuntu': 'ubuntu/images/[\w-].+/ubuntu-\w+-([0-9]{2}\.[0-9]{2})'
+            'ubuntu': 'ubuntu/images/[\w-].+/ubuntu-\w+-([0-9]{2}\.[0-9]{2})',
+            'windows': 'Windows_Server-([0-9]{4})-'
         }
         try:
             version = re.search(os_regexp[distro], image_name).groups()[0]
@@ -137,12 +138,18 @@ class AwsProvider(providers.BaseProvider):
         # FIXME(orviz) Use filters from file
         _filters = {
             "ubuntu": [
-                {"Name": "architecture", "Values": ["x86_64"]},
-                {"Name": "state", "Values": ["available"]},
-                {"Name": "root-device-type", "Values": ["ebs"]},
-                {"Name": "is-public", "Values": ["true"]},
-                {"Name": "name", "Values": ["ubuntu/images/*"]},
-                {"Name": "owner-id", "Values": ["099720109477"]}
+                {"Name": "architecture",
+                    "Values": ["x86_64"]},
+                {"Name": "state",
+                    "Values": ["available"]},
+                {"Name": "root-device-type",
+                    "Values": ["ebs"]},
+                {"Name": "is-public",
+                    "Values": ["true"]},
+                {"Name": "name",
+                    "Values": ["ubuntu/images/*"]},
+                {"Name": "owner-id",
+                    "Values": ["099720109477"]}
             ],
             "centos": [
                 {"Name": "architecture",
@@ -157,6 +164,14 @@ class AwsProvider(providers.BaseProvider):
                     "Values": ["aw0evgkw8e5c1q413zgy5pjce"]},
                 {"Name": "owner-id",
                     "Values": ["679593333241"]}
+            ],
+            "windows": [
+                {"Name": "platform",
+                    "Values": ["windows"]},
+                {"Name": "owner-id",
+                    "Values": ["801119661308"]},
+                {"Name": "name",
+                    "Values": ["Windows_Server*English*Standard*"]}
             ]
         }
         for _distro, _filter in _filters.items():
