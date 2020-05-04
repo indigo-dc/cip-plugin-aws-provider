@@ -1,5 +1,6 @@
-# stevedore/example2/setup.py
-from setuptools import setup, find_packages
+from setuptools import find_packages
+from setuptools import setup
+
 
 def get_requirements():
     with open('requirements.txt') as fp:
@@ -31,11 +32,11 @@ setup(
                  ],
 
     packages=find_packages(),
-    install_requires = get_requirements(),
+    install_requires=get_requirements(),
 
     entry_points={
         'cip.providers': [
-            'aws = cip_plugin_aws_provider.aws:AwsProvider2',
+            'aws = cip_plugin_aws_provider.aws:AwsProvider',
         ],
     },
 
