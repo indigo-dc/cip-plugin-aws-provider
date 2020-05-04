@@ -75,9 +75,9 @@ class AwsProvider(providers.BaseProvider):
 
     def _get_distro_version(self, image_name, distro):
         os_regexp = {
-            'centos': 'CentOS Linux ([0-9]) .+',
-            'ubuntu': 'ubuntu/images/[\w-].+/ubuntu-\w+-([0-9]{2}\.[0-9]{2})',
-            'windows': 'Windows_Server-([0-9]{4})-'
+            'centos': r'CentOS Linux ([0-9]) .+',
+            'ubuntu': r'ubuntu/images/[\w-].+/ubuntu-\w+-([0-9]{2}\.[0-9]{2})',
+            'windows': r'Windows_Server-([0-9]{4})-'
         }
         try:
             version = re.search(os_regexp[distro], image_name).groups()[0]
@@ -89,7 +89,7 @@ class AwsProvider(providers.BaseProvider):
         return version
 
     def _filter_amis_by_creation_date(self, amis):
-        l = []
+        l_amis = []
         all_amis_from_datetime = datetime.strptime(
             self.all_amis_from,
             '%Y-%m-%d')
@@ -98,8 +98,8 @@ class AwsProvider(providers.BaseProvider):
                 ami['CreationDate'],
                 '%Y-%m-%dT%H:%M:%S.%fZ')
             if creation_datetime > all_amis_from_datetime:
-                l.append(ami)
-        return l
+                l_amis.append(ami)
+        return l_amis
 
     def get_images(self, **kwargs):
         images = {}
@@ -275,8 +275,8 @@ class AwsProvider(providers.BaseProvider):
         parser.add_argument(
             '--all-amis-from',
             metavar='DATE',
-            default=(datetime.now()
-                     - relativedelta(years=1)).strftime("%Y-%m-%d"),
+            default=(
+                datetime.now() - relativedelta(years=1)).strftime("%Y-%m-%d"),
             dest='all_amis_from',
             help=('Starting date from which the creation date'
                   ' of the AMIs are valid. Date format is '
