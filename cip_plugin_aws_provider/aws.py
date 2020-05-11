@@ -26,18 +26,16 @@ class AwsProvider(providers.BaseProvider):
             msg = ('You must provide a AWS Region')
             raise exceptions.AwsProviderException(msg)
 
-        if not opts.aws_access_key or not opts.aws_secret_key:
-            msg = ('You must provide a tuple AWS access key / AWS secret key')
-            raise exceptions.AwsProviderException(msg)
-
         self.aws_region_code = opts.aws_region_code
-        self.aws_access_key = opts.aws_access_key
-        self.aws_secret_key = opts.aws_secret_key
+        options = {'region_name': self.aws_region_code}
+        if opts.aws_access_key and opts.aws_secret_key:
+            options.update({
+                'aws_access_key_id': opts.aws_access_key,
+                'aws_secret_access_key': opts.aws_secret_key})
+
         self.aws_client = boto3.client(
             'ec2',
-            region_name=self.aws_region_code,
-            aws_access_key_id=self.aws_access_key,
-            aws_secret_access_key=self.aws_secret_key)
+            **options)
 
         self.goc_service_type = 'com.amazonaws.ec2'
         self.all_amis_from = opts.all_amis_from
