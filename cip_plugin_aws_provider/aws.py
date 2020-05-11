@@ -221,8 +221,6 @@ class AwsProvider(providers.BaseProvider):
         _filters = [
             {"Name": "bare-metal",
                 "Values": ["false"]},
-            {"Name": "ebs-info.ebs-optimized-support",
-                "Values": ["supported"]},
             {"Name": "current-generation",
                 "Values": ["true"]},
         ]
